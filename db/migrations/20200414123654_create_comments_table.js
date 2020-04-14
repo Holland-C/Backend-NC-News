@@ -12,4 +12,5 @@ exports.up = function (knex) {
 
 exports.down = function (knex) {
   console.log("rolling back comments table");
+  return knex.schema.dropTable("comments");
 };

@@ -15,17 +15,8 @@ exports.seed = function (knex) {
     .then(() => {
       const formattedArticles = formatDates(articleData);
       return knex("articles").insert(formattedArticles).returning("*");
-      /* 
-      
-      Your article data is currently in the incorrect format and will violate your SQL schema. 
-      
-      You will need to write and test the provided formatDate utility function to be able insert your article data.
-
-      Your comment insertions will depend on information from the seeded articles, so make sure to return the data after it's been seeded.
-      */
     })
     .then((articleRows) => {
-      console.log("articles seeded");
       /* 
 
       Your comment data is currently in the incorrect format and will violate your SQL schema. 

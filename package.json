@@ -7,7 +7,7 @@
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "knex seed:run",
     "test-utils": "mocha spec/utils.spec.js",
-    "test": "mocha spec/utils.spec.js",
+    "test": "mocha spec/app.spec.js",
     "migrate-make": "knex migrate:make",
     "migrate-latest": "knex migrate:latest",
     "migrate-rollback": "knex migrate:rollback"
@@ -29,6 +29,8 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^7.1.1"
+    "express": "^4.17.1",
+    "mocha": "^7.1.1",
+    "supertest": "^4.0.2"
   }
 }

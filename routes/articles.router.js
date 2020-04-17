@@ -1,4 +1,4 @@
-const articlesRouter = require("express").Router();
+const articlesRouter = require("express").Router({ mergeParams: true });
 const commentsRouter = require("./comments.router");
 const {
   sendAllArticles,

@@ -114,17 +114,18 @@ describe("/api", () => {
           .send({ inc_votes: 1 })
           .expect(200)
           .then(({ body }) => {
-            expect(body.votes).to.equal(101);
+            expect(body.article.votes).to.equal(101);
           });
       });
       describe("/comment", () => {
         it("POST- 201 - accepts a comment and responds with the posted comment", () => {
           return request(app)
-            .post("api/articles/1/comments")
-            .send({ username: "bigCheese", body: "here is my comment" })
+            .post("/api/articles/1/comments")
+            .send({ author: "lurker", body: "here is my comment" })
             .expect(201)
             .then(({ body }) => {
-              expect(body.username).to.equal("bigCheese");
+              expect(body.author).to.equal("lurker");
+              expect(body.body).to.equal("here is my comment");
             });
         });
       });

@@ -1,7 +1,7 @@
 const connection = require("../db/connection");
 
-exports.postCommentModel = (article_id, username, body) => {
+exports.postCommentModel = (article_id, author, body) => {
   return connection("comments")
-    .insert({ article_id: article_id, username: username, body: body })
+    .insert({ article_id: article_id, author: author, body: body })
     .returning("*");
 };

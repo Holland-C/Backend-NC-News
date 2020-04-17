@@ -1,4 +1,5 @@
 const articlesRouter = require("express").Router();
+const commentsRouter = require("./comments.router");
 const {
   sendAllArticles,
   sendArticleById,
@@ -10,5 +11,6 @@ articlesRouter
   .route("/:article_id")
   .get(sendArticleById)
   .patch(patchArticleById);
+articlesRouter.use("/:article_id/comments", commentsRouter);
 
 module.exports = articlesRouter;

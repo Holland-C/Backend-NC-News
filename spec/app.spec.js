@@ -117,6 +117,17 @@ describe("/api", () => {
             expect(body.votes).to.equal(101);
           });
       });
+      describe("/comment", () => {
+        it("POST- 201 - accepts a comment and responds with the posted comment", () => {
+          return request(app)
+            .post("api/articles/1/comments")
+            .send({ username: "bigCheese", body: "here is my comment" })
+            .expect(201)
+            .then(({ body }) => {
+              expect(body.username).to.equal("bigCheese");
+            });
+        });
+      });
     });
   });
 });

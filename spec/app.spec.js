@@ -9,7 +9,7 @@ const connection = require("../db/connection");
 beforeEach(() => connection.seed.run());
 after(() => connection.destroy());
 
-describe("Invalid GET request", () => {
+describe("GET request", () => {
   it("returns status 404 and route not found, if incorrect route is entered", () => {
     return request(app)
       .get("/incorrect")
@@ -72,6 +72,14 @@ describe("/api", () => {
           expect(articles).to.have.length(12);
         });
     });
+    it("sorts by default in ascending order by article_id", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).to.be.sortedBy("article_id", { ascending: true });
+        });
+    });
     describe("/:article_id", () => {
       it("GET: 200 - returns a specific requested article", () => {
         return request(app)
@@ -98,6 +106,15 @@ describe("/api", () => {
               `votes`,
               `comment_count`
             );
+          });
+      });
+      it("PATCH - changes vote figure correctly & returns article with updated votes", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.votes).to.equal(101);
           });
       });
     });

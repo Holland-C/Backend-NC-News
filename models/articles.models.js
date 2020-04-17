@@ -9,3 +9,13 @@ exports.getAllArticles = () => {
     .groupBy("articles.article_id")
     .orderBy("article_id");
 };
+
+exports.updateArticleVotes = (article_id, inc_votes) => {
+  return connection("articles")
+    .increment("votes", inc_votes)
+    .where({ article_id })
+    .returning("*")
+    .then((array) => {
+      return array[0];
+    });
+};

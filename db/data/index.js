@@ -6,6 +6,4 @@ const data = {
   development: devData,
   test: testData,
 };
-console.log(ENV + "<<< ENV");
-
 module.exports = data[ENV];

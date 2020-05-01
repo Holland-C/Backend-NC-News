@@ -17,7 +17,7 @@ app.use((err, req, res, next) => {
     next(err);
   }
 });
-app.use(cors());
 app.use(handle500s);
+app.use(cors());
 
 module.exports = app;

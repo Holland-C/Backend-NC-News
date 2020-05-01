@@ -2,6 +2,7 @@ const express = require("express");
 const apiRouter = require("./routes/api.router");
 const app = express();
 const { handle500s } = require("./controllers/errors.js");
+const cors = require("cors");
 
 app.use(express.json());
 app.use("/api", apiRouter);
@@ -16,7 +17,7 @@ app.use((err, req, res, next) => {
     next(err);
   }
 });
-
+app.use(cors());
 app.use(handle500s);
 
 module.exports = app;

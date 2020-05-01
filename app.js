@@ -5,6 +5,7 @@ const { handle500s } = require("./controllers/errors.js");
 const cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
 app.use("/api", apiRouter);
 
 app.all("/*", (req, res, next) => {
@@ -18,6 +19,5 @@ app.use((err, req, res, next) => {
   }
 });
 app.use(handle500s);
-app.use(cors());
 
 module.exports = app;

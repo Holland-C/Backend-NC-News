@@ -72,12 +72,30 @@ describe("/api", () => {
           expect(articles).to.have.length(12);
         });
     });
-    it("sorts by default in ascending order by article_id", () => {
+    it("sorts by default in descending order by date of creation", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
         .then(({ body: { articles } }) => {
-          expect(articles).to.be.sortedBy("article_id", { ascending: true });
+          expect(articles).to.be.sortedBy("created_at", { descending: true });
+        });
+    });
+    it("sorts by other columns when passed a valid column as a url sort_by query", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).to.be.sortedBy("votes", { descending: true });
+        });
+    });
+
+    it.only("filters by type when passed a url query", () => {
+      return request(app)
+        .get("/api/articles?topic=cats")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          console.log(articles);
+          expect(articles.length).to.equal(1);
         });
     });
     describe("/:article_id", () => {

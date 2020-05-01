@@ -4,7 +4,7 @@ const {
 } = require("../models/articles.models");
 
 exports.sendAllArticles = (req, res, next) => {
-  getAllArticles()
+  getAllArticles(req.query)
     .then((articles) => {
       res.status(200).send({ articles });
     })

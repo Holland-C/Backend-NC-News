@@ -12,3 +12,17 @@ exports.getAllComments = (article_id) => {
     .from("comments")
     .where({ article_id });
 };
+
+exports.patchCommentVotesModel = (comment_id, inc_votes) => {
+  return connection("comments")
+    .increment("votes", inc_votes)
+    .where({ comment_id })
+    .returning("*")
+    .then((array) => {
+      return array[0];
+    });
+};
+
+exports.deleteComment = (comment_id) => {
+  return connection("comments").del().where({ comment_id });
+};

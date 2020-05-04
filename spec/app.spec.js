@@ -42,11 +42,24 @@ describe("/api", () => {
           res.body.users.forEach((user) => {
             expect(user).to.have.all.keys(["username", "name", "avatar_url"]);
           });
-          expect(res.body.users[0]).to.eql({
-            username: "butter_bridge",
-            name: "jonny",
+          expect(res.body.users[2]).to.eql({
+            username: "rogersop",
+            name: "paul",
             avatar_url:
-              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+              "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
+          });
+        });
+    });
+    it("returns a specified user object if passed as a parametric endpoint", () => {
+      return request(app)
+        .get("/api/users/rogersop")
+        .expect(200)
+        .then((res) => {
+          expect(res.body.user).to.eql({
+            username: "rogersop",
+            name: "paul",
+            avatar_url:
+              "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4",
           });
         });
     });
@@ -90,12 +103,10 @@ describe("/articles", () => {
   describe("/:article_id", () => {
     it("GET: 200 - returns a specific requested article", () => {
       return request(app)
-        .get("/api/articles/1")
+        .get("/api/articles/4")
         .expect(200)
         .then((res) => {
-          expect(res.body.article.title).to.equal(
-            "Living in the shadow of a great man"
-          );
+          expect(res.body.article.title).to.equal("Student SUES Mitch!");
         });
     });
     it("contains comment_count key which collates comments", () => {
@@ -126,7 +137,7 @@ describe("/articles", () => {
     });
   });
 });
-describe.only("/comment", () => {
+describe("/comment", () => {
   it("GET: 200 - returns an array of comment objects", () => {
     return request(app)
       .get("/api/articles/1/comments")
@@ -143,6 +154,26 @@ describe.only("/comment", () => {
       .then(({ body }) => {
         expect(body.author).to.equal("lurker");
         expect(body.body).to.equal("here is my comment");
+      });
+  });
+  it("PATCH - changes vote figure correctly & returns comment with updated votes", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment.votes).to.equal(17);
+      });
+  });
+  it("DELETE - deletes comment and returns 204 status", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(() => {
+        return connection("comments").where({ comment_id: 1 });
+      })
+      .then((comment) => {
+        expect(comment.length).to.eql(0);
       });
   });
 });

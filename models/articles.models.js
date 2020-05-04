@@ -1,6 +1,6 @@
 const connection = require("../db/connection");
 
-exports.getAllArticles = ({ sort_by, topic }) => {
+exports.getAllArticles = ({ article_id, sort_by, topic }) => {
   return connection
     .select("articles.*")
     .from("articles")
@@ -11,6 +11,9 @@ exports.getAllArticles = ({ sort_by, topic }) => {
     .modify((articleQuery) => {
       if (topic) articleQuery.where({ topic });
     });
+  // .modify((query) => {
+  //   if (article_id) query.where({ article_id });
+  // });
 };
 
 exports.updateArticleVotes = (article_id, inc_votes) => {

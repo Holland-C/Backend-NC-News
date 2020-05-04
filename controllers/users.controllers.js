@@ -9,8 +9,8 @@ exports.sendAllUsers = (req, res, next) => {
 };
 
 exports.sendUserById = (req, res, next) => {
-  const { username } = req.params;
-  getAllUsers({ username })
+  const { user } = req.params;
+  getAllUsers(user)
     .then(([user]) => {
       res.send({ user });
     })

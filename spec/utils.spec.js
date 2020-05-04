@@ -225,4 +225,27 @@ describe("formatComments", () => {
     const articleRef = { "Living in the shadow of a great man": 1 };
     expect(formatComments(input, articleRef)[0].created_at).to.be.a("date");
   });
+  it("does not mutate the original data", () => {
+    const comment = [
+      {
+        body: "Lobster pot",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: 0,
+        created_at: 1322138163389,
+      },
+    ];
+    const commentCopy = [
+      {
+        body: "Lobster pot",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: 0,
+        created_at: 1322138163389,
+      },
+    ];
+    const articleRef = { "Living in the shadow of a great man": 1 };
+    formatComments(input, articleRef);
+    expect(commentCopy).to.deep.equal(comment);
+  });
 });

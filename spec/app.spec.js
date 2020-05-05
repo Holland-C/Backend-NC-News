@@ -131,7 +131,6 @@ describe("/articles", () => {
         expect(res.body.articles).to.be.ascendingBy("created_at");
       });
   });
-
   it("filters by type when passed a url query", () => {
     return request(app)
       .get("/api/articles?topic=cats")
@@ -159,6 +158,22 @@ describe("/articles", () => {
         .expect(200)
         .then((res) => {
           expect(res.body.article.title).to.equal("Student SUES Mitch!");
+        });
+    });
+    it.only("404 - responds with an error when specific article does not exist", () => {
+      return request(app)
+        .get("/api/articles/99999")
+        .expect(404)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Not found");
+        });
+    });
+    it.only("400 - responds with an error when specific article is in incorrect format", () => {
+      return request(app)
+        .get("/api/articles/banana")
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Incorrect request type");
         });
     });
     it("contains comment_count key which collates comments", () => {

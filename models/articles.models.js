@@ -10,10 +10,10 @@ exports.getAllArticles = ({ article_id, sort_by, topic }) => {
     .orderBy(sort_by || "created_at", "desc")
     .modify((articleQuery) => {
       if (topic) articleQuery.where({ topic });
+    })
+    .modify((query) => {
+      if (article_id) query.where({ "articles.article_id": article_id });
     });
-  // .modify((query) => {
-  //   if (article_id) query.where({ article_id });
-  // });
 };
 
 exports.updateArticleVotes = (article_id, inc_votes) => {

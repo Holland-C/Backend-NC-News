@@ -8,15 +8,18 @@ const {
   sendAllComments,
   postComment,
 } = require("../controllers/comments.controllers");
+const { handle405s } = require("../errors");
 
-articlesRouter.route("/").get(sendAllArticles);
+articlesRouter.route("/").get(sendAllArticles).all(handle405s);
 articlesRouter
   .route("/:article_id")
   .get(sendArticleById)
-  .patch(patchArticleById);
+  .patch(patchArticleById)
+  .all(handle405s);
 articlesRouter
   .route("/:article_id/comments")
   .get(sendAllComments)
-  .post(postComment);
+  .post(postComment)
+  .all(handle405s);
 
 module.exports = articlesRouter;

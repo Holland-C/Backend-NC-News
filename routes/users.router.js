@@ -3,8 +3,10 @@ const {
   sendAllUsers,
   sendUserById,
 } = require("../controllers/users.controllers");
+const { handle405s } = require("../errors");
 
-usersRouter.get("/", sendAllUsers);
-usersRouter.get("/:user", sendUserById);
+usersRouter.route("/").get(sendAllUsers).all(handle405s);
+
+usersRouter.route("/:user").get(sendUserById).all(handle405s);
 
 module.exports = usersRouter;

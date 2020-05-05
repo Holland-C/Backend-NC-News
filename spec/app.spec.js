@@ -32,6 +32,18 @@ describe("/api", () => {
           });
         });
     });
+    it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {
+      const invalidMethods = ["put", "delete", "patch"];
+      const requests = invalidMethods.map((method) => {
+        return request(app)
+          [method]("/api/topics")
+          .expect(405)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Method Not Allowed");
+          });
+      });
+      return Promise.all(requests);
+    });
   });
   describe("/users", () => {
     it("GET: 200 - returns an array of user objects", () => {
@@ -63,6 +75,18 @@ describe("/api", () => {
           });
         });
     });
+    it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {
+      const invalidMethods = ["put", "delete", "patch"];
+      const requests = invalidMethods.map((method) => {
+        return request(app)
+          [method]("/api/users")
+          .expect(405)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Method Not Allowed");
+          });
+      });
+      return Promise.all(requests);
+    });
   });
 });
 describe("/articles", () => {
@@ -91,6 +115,22 @@ describe("/articles", () => {
         expect(articles).to.be.sortedBy("votes", { descending: true });
       });
   });
+  it("400 - responds with an error when sort_by column does not exist", () => {
+    return request(app)
+      .get("/api/articles?sort_by=banana")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Bad request");
+      });
+  });
+  it("accepts an order query(asc/desc) and responds with the articles in the requested order", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.articles).to.be.ascendingBy("created_at");
+      });
+  });
 
   it("filters by type when passed a url query", () => {
     return request(app)
@@ -99,6 +139,18 @@ describe("/articles", () => {
       .then(({ body: { articles } }) => {
         expect(articles.length).to.equal(1);
       });
+  });
+  it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {
+    const invalidMethods = ["put", "delete"];
+    const requests = invalidMethods.map((method) => {
+      return request(app)
+        [method]("/api/articles")
+        .expect(405)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    return Promise.all(requests);
   });
   describe("/:article_id", () => {
     it("GET: 200 - returns a specific requested article", () => {
@@ -134,6 +186,18 @@ describe("/articles", () => {
         .then(({ body }) => {
           expect(body.article.votes).to.equal(101);
         });
+    });
+    it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {
+      const invalidMethods = ["put", "delete"];
+      const requests = invalidMethods.map((method) => {
+        return request(app)
+          [method]("/api/articles/2")
+          .expect(405)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Method Not Allowed");
+          });
+      });
+      return Promise.all(requests);
     });
   });
 });
@@ -175,5 +239,17 @@ describe("/comment", () => {
       .then((comment) => {
         expect(comment.length).to.eql(0);
       });
+  });
+  it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {
+    const invalidMethods = ["put"];
+    const requests = invalidMethods.map((method) => {
+      return request(app)
+        [method]("/api/comments/2")
+        .expect(405)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    return Promise.all(requests);
   });
 });

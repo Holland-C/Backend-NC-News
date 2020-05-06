@@ -20,7 +20,7 @@ exports.getAllComments = (
 
 exports.patchCommentVotesModel = (comment_id, inc_votes) => {
   return connection("comments")
-    .increment("votes", inc_votes)
+    .increment("votes", inc_votes || 0)
     .where({ comment_id })
     .returning("*")
     .then((array) => {

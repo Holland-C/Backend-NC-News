@@ -301,6 +301,15 @@ describe("/comment", () => {
         expect(body.comment.votes).to.equal(17);
       });
   });
+  it.only("PATCH - does not change vote figure if a blank patch is sent", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({})
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment.votes).to.equal(16);
+      });
+  });
   it("DELETE - deletes comment and returns 204 status", () => {
     return request(app)
       .delete("/api/comments/1")
@@ -310,6 +319,22 @@ describe("/comment", () => {
       })
       .then((comment) => {
         expect(comment.length).to.eql(0);
+      });
+  });
+  it.only("404 - delete responds with an error when specific comment does not exist", () => {
+    return request(app)
+      .delete("/api/comments/99999")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Not found");
+      });
+  });
+  it.only("400 - delete responds with an error when specific comment is in incorrect format", () => {
+    return request(app)
+      .delete("/api/comments/wrongformatcomment")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Incorrect request type");
       });
   });
   it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {

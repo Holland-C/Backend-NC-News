@@ -11,7 +11,6 @@ exports.postComment = (req, res, next) => {
   postCommentModel(article_id, author, body)
     .then(([comment]) => {
       res.status(201).send({ comment });
-      console.log(comment.author);
     })
     .catch(next);
 };
@@ -38,6 +37,7 @@ exports.patchCommentVotes = (req, res, next) => {
 
 exports.deleteCommentById = (req, res, next) => {
   const { comment_id } = req.params;
+  console.log(comment_id);
   deleteComment(comment_id)
     .then(() => {
       res.status(204).send();

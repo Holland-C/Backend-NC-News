@@ -15,6 +15,7 @@ exports.handlePSQLErrors = (err, req, res, next) => {
     "42703": { status: 400, msg: "Bad request" },
     "22P02": { status: 400, msg: "Incorrect request type" },
   };
+  console.log(err);
   if (err.code in codes) {
     const { msg, status } = codes[err.code];
     res.status(status).send({ msg });

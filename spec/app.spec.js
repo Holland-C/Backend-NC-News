@@ -292,6 +292,24 @@ describe("/comment", () => {
         expect(body.comment.body).to.equal("here is my comment");
       });
   });
+  it.only("404 - responds with an error when posting to an article that does not exist", () => {
+    return request(app)
+      .post("/api/articles/99999/comments")
+      .send({ author: "lurker", body: "here is my comment" })
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Article not found");
+      });
+  });
+  it.only("400 - responds with an error when posting to an article specified in an incorrect format", () => {
+    return request(app)
+      .post("/api/articles/banana/comments")
+      .send({ author: "lurker", body: "here is my comment" })
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Incorrect request type");
+      });
+  });
   it("PATCH - changes vote figure correctly & returns comment with updated votes", () => {
     return request(app)
       .patch("/api/comments/1")
@@ -319,14 +337,6 @@ describe("/comment", () => {
       })
       .then((comment) => {
         expect(comment.length).to.eql(0);
-      });
-  });
-  it.only("404 - delete responds with an error when specific comment does not exist", () => {
-    return request(app)
-      .delete("/api/comments/99999")
-      .expect(404)
-      .then((res) => {
-        expect(res.body.msg).to.equal("Not found");
       });
   });
   it.only("400 - delete responds with an error when specific comment is in incorrect format", () => {

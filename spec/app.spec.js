@@ -19,8 +19,19 @@ describe("GET request", () => {
       });
   });
 });
-
 describe("/api", () => {
+  it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {
+    const invalidMethods = ["get", "post", "put", "delete", "patch"];
+    const requests = invalidMethods.map((method) => {
+      return request(app)
+        [method]("/api")
+        .expect(405)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Method Not Allowed");
+        });
+    });
+    return Promise.all(requests);
+  });
   describe("/topics", () => {
     it("GET: 200 - returns an array of topic objects", () => {
       return request(app)
@@ -75,6 +86,14 @@ describe("/api", () => {
           });
         });
     });
+    it("404 - responds with an error when specific user does not exist", () => {
+      return request(app)
+        .get("/api/users/nonexistentuser")
+        .expect(404)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Not found");
+        });
+    });
     it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {
       const invalidMethods = ["put", "delete", "patch"];
       const requests = invalidMethods.map((method) => {
@@ -115,12 +134,44 @@ describe("/articles", () => {
         expect(articles).to.be.sortedBy("votes", { descending: true });
       });
   });
-  it("400 - responds with an error when sort_by column does not exist", () => {
+  it("filters by topic when passed a valid topic as a url query", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).to.equal(1);
+      });
+  });
+  it("filters by author when passed a valid author as a url query", () => {
+    return request(app)
+      .get("/api/articles?author=butter_bridge")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).to.equal(3);
+      });
+  });
+  it("responds with 404 when author does not exist", () => {
+    return request(app)
+      .get("/api/articles?author=lurker")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Not found");
+      });
+  });
+  it("responds with 404 when topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=notATopic")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Not found");
+      });
+  });
+  it("404 - responds with an error when sort_by column does not exist", () => {
     return request(app)
       .get("/api/articles?sort_by=banana")
-      .expect(400)
+      .expect(404)
       .then((res) => {
-        expect(res.body.msg).to.equal("Bad request");
+        expect(res.body.msg).to.equal("Column does not exist");
       });
   });
   it("accepts an order query(asc/desc) and responds with the articles in the requested order", () => {
@@ -151,7 +202,7 @@ describe("/articles", () => {
     });
     return Promise.all(requests);
   });
-  describe.only("/:article_id", () => {
+  describe("/:article_id", () => {
     it("GET: 200 - returns a specific requested article", () => {
       return request(app)
         .get("/api/articles/4")
@@ -234,6 +285,14 @@ describe("/comment", () => {
         expect(res.body.comments.length).to.equal(13);
       });
   });
+  it("GET: 200 - returns an empty array if article has no comments", () => {
+    return request(app)
+      .get("/api/articles/7/comments")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.comments).to.eql([]);
+      });
+  });
   it("sorts by default in descending order by date of creation", () => {
     return request(app)
       .get("/api/articles/1/comments")
@@ -253,9 +312,9 @@ describe("/comment", () => {
   it("400 - responds with an error when sort_by column does not exist", () => {
     return request(app)
       .get("/api/articles/1/comments?sort_by=banana")
-      .expect(400)
+      .expect(404)
       .then((res) => {
-        expect(res.body.msg).to.equal("Bad request");
+        expect(res.body.msg).to.equal("Column does not exist");
       });
   });
   it("accepts an order query(asc/desc) and responds with the articles in the requested order", () => {
@@ -285,7 +344,7 @@ describe("/comment", () => {
   it("POST- 201 - accepts a comment and responds with the posted comment", () => {
     return request(app)
       .post("/api/articles/1/comments")
-      .send({ author: "lurker", body: "here is my comment" })
+      .send({ username: "lurker", body: "here is my comment" })
       .expect(201)
       .then(({ body }) => {
         expect(body.comment.author).to.equal("lurker");
@@ -295,7 +354,7 @@ describe("/comment", () => {
   it("404 - responds with an error when posting to an article that does not exist", () => {
     return request(app)
       .post("/api/articles/99999/comments")
-      .send({ author: "lurker", body: "here is my comment" })
+      .send({ username: "lurker", body: "here is my comment" })
       .expect(404)
       .then((res) => {
         expect(res.body.msg).to.equal("Article not found");
@@ -304,7 +363,7 @@ describe("/comment", () => {
   it("400 - responds with an error when posting to an article specified in an incorrect format", () => {
     return request(app)
       .post("/api/articles/banana/comments")
-      .send({ author: "lurker", body: "here is my comment" })
+      .send({ username: "lurker", body: "here is my comment" })
       .expect(400)
       .then((res) => {
         expect(res.body.msg).to.equal("Incorrect request type");
@@ -328,6 +387,24 @@ describe("/comment", () => {
         expect(body.comment.votes).to.equal(16);
       });
   });
+  it("404 - patch responds with an error if specific comment is incorrect but in correct format", () => {
+    return request(app)
+      .patch("/api/comments/2124421")
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Not found");
+      });
+  });
+  it("400 - patch responds with an error when specific comment is in incorrect format", () => {
+    return request(app)
+      .patch("/api/comments/banana")
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Incorrect request type");
+      });
+  });
   it("DELETE - deletes comment and returns 204 status", () => {
     return request(app)
       .delete("/api/comments/1")
@@ -337,6 +414,14 @@ describe("/comment", () => {
       })
       .then((comment) => {
         expect(comment.length).to.eql(0);
+      });
+  });
+  it("404 - delete responds with an error if specific comment is incorrect but in correct format", () => {
+    return request(app)
+      .delete("/api/comments/878678")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Not found");
       });
   });
   it("400 - delete responds with an error when specific comment is in incorrect format", () => {

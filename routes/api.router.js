@@ -9,5 +9,5 @@ apiRouter.use("/topics", topicsRouter).all(handle405s);
 apiRouter.use("/users", usersRouter).all(handle405s);
 apiRouter.use("/articles", articlesRouter).all(handle405s);
 apiRouter.use("/comments", commentsRouter).all(handle405s);
-
+apiRouter.route("/").all(handle405s);
 module.exports = apiRouter;

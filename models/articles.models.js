@@ -1,11 +1,10 @@
 const connection = require("../db/connection");
 
 exports.getAllArticles = ({
-  article_id,
+  author,
+  topic,
   sort_by = "created_at",
   order = "desc",
-  topic,
-  author,
 }) => {
   return connection
     .select("articles.*")
@@ -14,11 +13,9 @@ exports.getAllArticles = ({
     .leftJoin("comments", "articles.article_id", "comments.article_id")
     .groupBy("articles.article_id")
     .orderBy(sort_by, order)
-    .modify((articleQuery) => {
-      if (topic) articleQuery.where({ topic });
-    })
-    .modify((articleQuery) => {
-      if (author) articleQuery.where({ author });
+    .modify((query) => {
+      if (topic) query.where({ topic });
+      if (author) query.where({ "articles.author": author });
     });
 };
 

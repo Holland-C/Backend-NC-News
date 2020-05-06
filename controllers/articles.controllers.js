@@ -5,8 +5,12 @@ const {
 } = require("../models/articles.models");
 
 exports.sendAllArticles = (req, res, next) => {
-  getAllArticles(req.query)
+  const { author, topic, sort_by, order } = req.query;
+
+  getAllArticles({ author, topic, sort_by, order })
     .then((articles) => {
+      if (articles.length === 0)
+        return Promise.reject({ status: 404, msg: "Not found" });
       res.status(200).send({ articles });
     })
     .catch(next);

@@ -1,5 +1,6 @@
 const {
   getAllArticles,
+  getSingleArticle,
   updateArticleVotes,
 } = require("../models/articles.models");
 
@@ -13,12 +14,12 @@ exports.sendAllArticles = (req, res, next) => {
 
 exports.sendArticleById = (req, res, next) => {
   const { article_id } = req.params;
-  getAllArticles({ article_id })
+  getSingleArticle({ article_id })
     .then((article) => {
-      if (article.length === 0)
+      if (article === undefined)
         return Promise.reject({ status: 404, msg: "Not found" });
-      const flattenedArticle = [article];
-      res.send({ flattenedArticle });
+
+      res.send({ article });
     })
     .catch(next);
 };

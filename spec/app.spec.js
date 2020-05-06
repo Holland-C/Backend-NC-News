@@ -151,7 +151,7 @@ describe("/articles", () => {
     });
     return Promise.all(requests);
   });
-  describe("/:article_id", () => {
+  describe.only("/:article_id", () => {
     it("GET: 200 - returns a specific requested article", () => {
       return request(app)
         .get("/api/articles/4")
@@ -282,7 +282,7 @@ describe("/comment", () => {
         expect(res.body.msg).to.equal("Incorrect request type");
       });
   });
-  it.only("POST- 201 - accepts a comment and responds with the posted comment", () => {
+  it("POST- 201 - accepts a comment and responds with the posted comment", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({ author: "lurker", body: "here is my comment" })
@@ -292,7 +292,7 @@ describe("/comment", () => {
         expect(body.comment.body).to.equal("here is my comment");
       });
   });
-  it.only("404 - responds with an error when posting to an article that does not exist", () => {
+  it("404 - responds with an error when posting to an article that does not exist", () => {
     return request(app)
       .post("/api/articles/99999/comments")
       .send({ author: "lurker", body: "here is my comment" })
@@ -301,7 +301,7 @@ describe("/comment", () => {
         expect(res.body.msg).to.equal("Article not found");
       });
   });
-  it.only("400 - responds with an error when posting to an article specified in an incorrect format", () => {
+  it("400 - responds with an error when posting to an article specified in an incorrect format", () => {
     return request(app)
       .post("/api/articles/banana/comments")
       .send({ author: "lurker", body: "here is my comment" })
@@ -319,7 +319,7 @@ describe("/comment", () => {
         expect(body.comment.votes).to.equal(17);
       });
   });
-  it.only("PATCH - does not change vote figure if a blank patch is sent", () => {
+  it("PATCH - does not change vote figure if a blank patch is sent", () => {
     return request(app)
       .patch("/api/comments/1")
       .send({})
@@ -339,7 +339,7 @@ describe("/comment", () => {
         expect(comment.length).to.eql(0);
       });
   });
-  it.only("400 - delete responds with an error when specific comment is in incorrect format", () => {
+  it("400 - delete responds with an error when specific comment is in incorrect format", () => {
     return request(app)
       .delete("/api/comments/wrongformatcomment")
       .expect(400)

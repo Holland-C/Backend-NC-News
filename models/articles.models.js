@@ -25,6 +25,19 @@ exports.getAllArticles = ({
     });
 };
 
+exports.getSingleArticle = ({ article_id }) => {
+  return connection
+    .select("articles.*")
+    .from("articles")
+    .count({ comment_count: "comment_id" })
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .groupBy("articles.article_id")
+    .where({ "articles.article_id": article_id })
+    .then((array) => {
+      return array[0];
+    });
+};
+
 exports.updateArticleVotes = (article_id, inc_votes) => {
   return connection("articles")
     .increment("votes", inc_votes || 0)

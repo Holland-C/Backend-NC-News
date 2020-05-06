@@ -27,7 +27,7 @@ exports.getAllArticles = ({
 
 exports.updateArticleVotes = (article_id, inc_votes) => {
   return connection("articles")
-    .increment("votes", inc_votes)
+    .increment("votes", inc_votes || 0)
     .where({ article_id })
     .returning("*")
     .then((array) => {

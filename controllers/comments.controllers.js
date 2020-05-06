@@ -10,17 +10,18 @@ exports.postComment = (req, res, next) => {
   const { author, body } = req.body;
   postCommentModel(article_id, author, body)
     .then(([comment]) => {
-      res.status(201).send(comment);
+      res.status(201).send({ comment });
       console.log(comment.author);
     })
     .catch(next);
 };
 exports.sendAllComments = (req, res, next) => {
-  // charlies-app.com/api/articles/9/comments?sort_by=votes
   const { article_id } = req.params;
-  // const { sort_by } = req.query;
-  getAllComments(article_id)
+  const { sort_by, order } = req.query;
+  getAllComments(article_id, sort_by, order)
     .then((comments) => {
+      if (comments.length === 0)
+        return Promise.reject({ status: 404, msg: "Not found" });
       res.status(200).send({ comments });
     })
     .catch(next);

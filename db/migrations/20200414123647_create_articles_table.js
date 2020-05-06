@@ -4,8 +4,8 @@ exports.up = function (knex) {
     articleTable.text("title").notNullable();
     articleTable.text("body").notNullable();
     articleTable.integer("votes").defaultTo(0);
-    articleTable.text("topic").references("topics.slug");
-    articleTable.text("author").references("users.username");
+    articleTable.text("topic").notNullable().references("topics.slug");
+    articleTable.text("author").notNullable().references("users.username");
     articleTable.timestamp("created_at");
   });
 };

@@ -160,7 +160,7 @@ describe("/articles", () => {
           expect(res.body.article.title).to.equal("Student SUES Mitch!");
         });
     });
-    it.only("404 - responds with an error when specific article does not exist", () => {
+    it("404 - responds with an error when specific article does not exist", () => {
       return request(app)
         .get("/api/articles/99999")
         .expect(404)
@@ -168,7 +168,7 @@ describe("/articles", () => {
           expect(res.body.msg).to.equal("Not found");
         });
     });
-    it.only("400 - responds with an error when specific article is in incorrect format", () => {
+    it("400 - responds with an error when specific article is in incorrect format", () => {
       return request(app)
         .get("/api/articles/banana")
         .expect(400)
@@ -202,6 +202,15 @@ describe("/articles", () => {
           expect(body.article.votes).to.equal(101);
         });
     });
+    it("PATCH - does not change vote figure if a blank patch is sent", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({})
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.votes).to.equal(100);
+        });
+    });
     it("INVALID METHODS: 405 - responds with Method Not Allowed", () => {
       const invalidMethods = ["put", "delete"];
       const requests = invalidMethods.map((method) => {
@@ -225,14 +234,62 @@ describe("/comment", () => {
         expect(res.body.comments.length).to.equal(13);
       });
   });
-  it("POST- 201 - accepts a comment and responds with the posted comment", () => {
+  it("sorts by default in descending order by date of creation", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).to.be.sortedBy("created_at", { descending: true });
+      });
+  });
+  it("sorts by other columns when passed a valid column as a url sort_by query", () => {
+    return request(app)
+      .get("/api/articles/1/comments?sort_by=votes")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).to.be.sortedBy("votes", { descending: true });
+      });
+  });
+  it("400 - responds with an error when sort_by column does not exist", () => {
+    return request(app)
+      .get("/api/articles/1/comments?sort_by=banana")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Bad request");
+      });
+  });
+  it("accepts an order query(asc/desc) and responds with the articles in the requested order", () => {
+    return request(app)
+      .get("/api/articles/1/comments?order=asc")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.comments).to.be.ascendingBy("created_at");
+      });
+  });
+  it("404 - responds with an error when specific article does not exist", () => {
+    return request(app)
+      .get("/api/articles/99999/comments")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Not found");
+      });
+  });
+  it("400 - responds with an error when specific article is in incorrect format", () => {
+    return request(app)
+      .get("/api/articles/banana/comments")
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Incorrect request type");
+      });
+  });
+  it.only("POST- 201 - accepts a comment and responds with the posted comment", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({ author: "lurker", body: "here is my comment" })
       .expect(201)
       .then(({ body }) => {
-        expect(body.author).to.equal("lurker");
-        expect(body.body).to.equal("here is my comment");
+        expect(body.comment.author).to.equal("lurker");
+        expect(body.comment.body).to.equal("here is my comment");
       });
   });
   it("PATCH - changes vote figure correctly & returns comment with updated votes", () => {

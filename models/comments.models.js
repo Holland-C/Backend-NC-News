@@ -6,11 +6,16 @@ exports.postCommentModel = (article_id, author, body) => {
     .returning("*");
 };
 
-exports.getAllComments = (article_id) => {
+exports.getAllComments = (
+  article_id,
+  sort_by = "created_at",
+  order = "desc"
+) => {
   return connection("comments")
     .select("*")
     .from("comments")
-    .where({ article_id });
+    .where({ article_id })
+    .orderBy(sort_by, order);
 };
 
 exports.patchCommentVotesModel = (comment_id, inc_votes) => {

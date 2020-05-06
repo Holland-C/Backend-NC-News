@@ -19,9 +19,6 @@ exports.getAllArticles = ({
     })
     .modify((articleQuery) => {
       if (author) articleQuery.where({ author });
-    })
-    .modify((articleQuery) => {
-      if (article_id) articleQuery.where({ "articles.article_id": article_id });
     });
 };
 

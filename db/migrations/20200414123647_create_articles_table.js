@@ -6,7 +6,7 @@ exports.up = function (knex) {
     articleTable.integer("votes").defaultTo(0);
     articleTable.text("topic").notNullable().references("topics.slug");
     articleTable.text("author").notNullable().references("users.username");
-    articleTable.timestamp("created_at");
+    articleTable.timestamp("created_at").defaultTo(knex.fn.now());
   });
 };
 

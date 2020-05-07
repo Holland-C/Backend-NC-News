@@ -370,11 +370,11 @@ describe("/comment", () => {
   });
   it("400 - responds with an error when posting a blank comment to a correct article", () => {
     return request(app)
-      .post("/api/articles/banana/comments")
+      .post("/api/articles/1/comments")
       .send({})
       .expect(400)
       .then((res) => {
-        expect(res.body.msg).to.equal("Incorrect request type");
+        expect(res.body.msg).to.equal("Bad request");
       });
   });
   it("404 - responds with an error when posting a comment to an article that does not exist", () => {

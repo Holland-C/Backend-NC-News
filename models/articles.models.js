@@ -1,5 +1,31 @@
 const connection = require("../db/connection");
 
+const checkAuthorExists = (author) => {
+  if (!author) return true;
+  else {
+    return connection("users")
+      .select("*")
+      .where({ username: author })
+      .then((usersArray) => {
+        if (usersArray.length === 0) return false;
+        return true;
+      });
+  }
+};
+
+const checkTopicExists = (topic) => {
+  if (!topic) return true;
+  else {
+    return connection("topics")
+      .select("*")
+      .where({ slug: topic })
+      .then((topicsArray) => {
+        if (topicsArray.length === 0) return false;
+        return true;
+      });
+  }
+};
+
 exports.getAllArticles = ({
   author,
   topic,
@@ -16,9 +42,22 @@ exports.getAllArticles = ({
     .modify((query) => {
       if (topic) query.where({ topic });
       if (author) query.where({ "articles.author": author });
+    })
+    .then((articles) => {
+      return Promise.all([
+        articles,
+        checkAuthorExists(author),
+        checkTopicExists(topic),
+      ]);
+    })
+    .then(([articles, authorExists, topicExists]) => {
+      if (authorExists && topicExists) {
+        return articles;
+      } else {
+        return Promise.reject({ status: 404, msg: "Not found" });
+      }
     });
 };
-
 exports.getSingleArticle = ({ article_id }) => {
   return connection
     .select("articles.*")

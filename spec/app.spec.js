@@ -152,12 +152,21 @@ describe("/articles", () => {
   });
   it("responds with 404 when author does not exist", () => {
     return request(app)
-      .get("/api/articles?author=lurker")
+      .get("/api/articles?author=banana")
       .expect(404)
       .then((res) => {
         expect(res.body.msg).to.equal("Not found");
       });
   });
+  it("provides an empty array if author exists but has no articles", () => {
+    return request(app)
+      .get("/api/articles?author=lurker")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).to.eql([]);
+      });
+  });
+
   it("responds with 404 when topic does not exist", () => {
     return request(app)
       .get("/api/articles?topic=notATopic")
@@ -166,12 +175,20 @@ describe("/articles", () => {
         expect(res.body.msg).to.equal("Not found");
       });
   });
-  it("404 - responds with an error when sort_by column does not exist", () => {
+  it("provides an empty array if topic exists but has no articles", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).to.eql([]);
+      });
+  });
+  it("400 - responds with an error when sort_by column does not exist", () => {
     return request(app)
       .get("/api/articles?sort_by=banana")
-      .expect(404)
+      .expect(400)
       .then((res) => {
-        expect(res.body.msg).to.equal("Column does not exist");
+        expect(res.body.msg).to.equal("Bad request");
       });
   });
   it("accepts an order query(asc/desc) and responds with the articles in the requested order", () => {
@@ -312,9 +329,9 @@ describe("/comment", () => {
   it("400 - responds with an error when sort_by column does not exist", () => {
     return request(app)
       .get("/api/articles/1/comments?sort_by=banana")
-      .expect(404)
+      .expect(400)
       .then((res) => {
-        expect(res.body.msg).to.equal("Column does not exist");
+        expect(res.body.msg).to.equal("Bad request");
       });
   });
   it("accepts an order query(asc/desc) and responds with the articles in the requested order", () => {
@@ -351,7 +368,16 @@ describe("/comment", () => {
         expect(body.comment.body).to.equal("here is my comment");
       });
   });
-  it("404 - responds with an error when posting to an article that does not exist", () => {
+  it("400 - responds with an error when posting a blank comment to a correct article", () => {
+    return request(app)
+      .post("/api/articles/banana/comments")
+      .send({})
+      .expect(400)
+      .then((res) => {
+        expect(res.body.msg).to.equal("Incorrect request type");
+      });
+  });
+  it("404 - responds with an error when posting a comment to an article that does not exist", () => {
     return request(app)
       .post("/api/articles/99999/comments")
       .send({ username: "lurker", body: "here is my comment" })
@@ -360,7 +386,7 @@ describe("/comment", () => {
         expect(res.body.msg).to.equal("Article not found");
       });
   });
-  it("400 - responds with an error when posting to an article specified in an incorrect format", () => {
+  it("400 - responds with an error when posting a comment to an article specified in an incorrect format", () => {
     return request(app)
       .post("/api/articles/banana/comments")
       .send({ username: "lurker", body: "here is my comment" })

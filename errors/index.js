@@ -12,7 +12,7 @@ exports.handleCustomErrors = (err, req, res, next) => {
 
 exports.handlePSQLErrors = (err, req, res, next) => {
   const codes = {
-    "42703": { status: 404, msg: "Column does not exist" },
+    "42703": { status: 400, msg: "Bad request" },
     "22P02": { status: 400, msg: "Incorrect request type" },
     "23503": { status: 404, msg: "Article not found" },
   };
